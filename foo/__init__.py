@@ -1,0 +1,2 @@
+PROGRAM  = 'foo'
+PROTOCOL = 'bar'
