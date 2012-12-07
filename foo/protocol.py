@@ -12,8 +12,8 @@ __all__ = (
 class FooProtocol(Protocol):
     
     _proto = PROTOCOL
-    _english_name = "Foo"
-    _icon = "im-foo"
+    _english_name = "Bar"
+    _icon = "im-bar"
     _vcard_field = "im-bar"
 
     _mandatory_parameters = {
