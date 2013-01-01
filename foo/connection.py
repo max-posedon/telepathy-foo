@@ -1,13 +1,13 @@
 import weakref
 import gobject
 
-from telepathy import (
+from telepathy.constants import (
     CONNECTION_STATUS_CONNECTED,
     CONNECTION_STATUS_DISCONNECTED,
     CONNECTION_STATUS_REASON_REQUESTED,
     CONNECTION_STATUS_REASON_NONE_SPECIFIED,
     HANDLE_TYPE_CONTACT,
-    )
+)
 from telepathy.server import Connection
 
 from foo import PROGRAM, PROTOCOL
