@@ -16,6 +16,9 @@ class FooProtocol(Protocol):
     _icon = "im-%s" % PROTOCOL
     _vcard_field = "im-%s" % PROTOCOL
 
+    _requestable_channel_classes = [
+    ]
+
     _mandatory_parameters = {
         'account': 's',
     }
