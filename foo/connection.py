@@ -38,3 +38,11 @@ class FooConnection(Connection):
 
     def _connected(self):
         self.StatusChanged(CONNECTION_STATUS_CONNECTED, CONNECTION_STATUS_REASON_REQUESTED)
+
+    def Disconnect(self):
+        self.__disconnect_reason = CONNECTION_STATUS_REASON_REQUESTED
+        gobject.timeout_add(50, self._disconnected)
+
+    def _disconnected(self):
+        self.StatusChanged(CONNECTION_STATUS_DISCONNECTED, self.__disconnect_reason)
+        self._manager.disconnected(self)

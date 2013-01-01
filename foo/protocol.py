@@ -12,9 +12,9 @@ __all__ = (
 class FooProtocol(Protocol):
     
     _proto = PROTOCOL
-    _english_name = "Bar"
-    _icon = "im-bar"
-    _vcard_field = "im-bar"
+    _english_name = PROTOCOL.capitalize()
+    _icon = "im-%s" % PROTOCOL
+    _vcard_field = "im-%s" % PROTOCOL
 
     _mandatory_parameters = {
         'account': 's',

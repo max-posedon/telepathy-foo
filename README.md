@@ -1,4 +1,4 @@
 telepathy-foo
 =============
 
-telepathy-python protocol (bar) implementation example
+telepathy-python protocol (foo) implementation example

@@ -1,2 +1,2 @@
 PROGRAM  = 'foo'
-PROTOCOL = 'bar'
+PROTOCOL = 'foo'
