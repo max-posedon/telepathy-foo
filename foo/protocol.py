@@ -16,12 +16,15 @@ class FooProtocol(Protocol):
     _icon = "im-%s" % PROTOCOL
     _vcard_field = "im-%s" % PROTOCOL
 
-    _requestable_channel_classes = [
-    ]
-
     _mandatory_parameters = {
         'account': 's',
     }
+
+    _requestable_channel_classes = [
+    ]
+
+    _supported_interfaces = [
+    ]
 
     def __init__(self, connection_manager):
         Protocol.__init__(self, connection_manager, PROTOCOL)
