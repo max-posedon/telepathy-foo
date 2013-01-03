@@ -1,3 +1,7 @@
+from telepathy.interfaces import (
+    CONNECTION_INTERFACE_CONTACTS,
+    CONNECTION_INTERFACE_REQUESTS,
+)
 from telepathy.server import Protocol
 
 from foo import PROTOCOL
@@ -24,6 +28,8 @@ class FooProtocol(Protocol):
     ]
 
     _supported_interfaces = [
+        CONNECTION_INTERFACE_CONTACTS,
+        CONNECTION_INTERFACE_REQUESTS,
     ]
 
     def __init__(self, connection_manager):
