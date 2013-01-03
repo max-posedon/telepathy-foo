@@ -93,3 +93,6 @@ class FooConnection(Connection,
                 ret[int(handle)][interface_attribute] = value
 
         return ret
+
+    def GetContactListAttributes(self, interfaces, hold):
+        return {}

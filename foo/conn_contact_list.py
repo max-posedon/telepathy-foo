@@ -28,7 +28,7 @@ class ConnectionInterfaceContactList(_ConnectionInterfaceContactList, DBusProper
         self._implement_property_get(CONNECTION_INTERFACE_CONTACT_LIST, {
             'ContactListState': lambda: dbus.UInt32(self._get_contact_list_state()),
             'ContactListPersists': lambda: dbus.Boolean(self._get_contact_list_persists()),
-            'CanChangeContactList': lambda: dbus.Boolean(self._get_can_change_contact_list)(),
+            'CanChangeContactList': lambda: dbus.Boolean(self._get_can_change_contact_list()),
             'RequestUsesMessage': lambda: dbus.Boolean(self._get_request_uses_message()),
             'DownloadAtConnection': lambda: dbus.Boolean(self._get_download_at_connection()),
         })
@@ -40,7 +40,7 @@ class ConnectionInterfaceContactList(_ConnectionInterfaceContactList, DBusProper
     def _get_contact_list_state(self):
         return self._contact_list_state
 
-    def _get_contact_list_persist(self):
+    def _get_contact_list_persists(self):
         return self._contact_list_persists
 
     def _get_can_change_contact_list(self):
