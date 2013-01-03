@@ -1,4 +1,5 @@
 from telepathy.interfaces import (
+    CONNECTION_INTERFACE_CONTACT_LIST,
     CONNECTION_INTERFACE_CONTACTS,
     CONNECTION_INTERFACE_REQUESTS,
 )
@@ -28,6 +29,7 @@ class FooProtocol(Protocol):
     ]
 
     _supported_interfaces = [
+        CONNECTION_INTERFACE_CONTACT_LIST,
         CONNECTION_INTERFACE_CONTACTS,
         CONNECTION_INTERFACE_REQUESTS,
     ]
