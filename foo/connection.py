@@ -10,14 +10,20 @@ from telepathy.constants import (
     CONNECTION_STATUS_REASON_NONE_SPECIFIED,
     CONTACT_LIST_STATE_SUCCESS,
     HANDLE_TYPE_CONTACT,
+    SUBSCRIPTION_STATE_YES,
 )
-from telepathy.interfaces import CONNECTION, CONNECTION_INTERFACE_CONTACTS
+from telepathy.interfaces import (
+    CONNECTION,
+    CONNECTION_INTERFACE_CONTACT_LIST,
+    CONNECTION_INTERFACE_CONTACTS,
+)
 from telepathy.server import (
     Connection,
     ConnectionInterfaceRequests,
 )
+from telepathy.server.handle import Handle
 
-from foo import PROGRAM, PROTOCOL
+from foo import PROGRAM, PROTOCOL, CONTACTS
 from foo.conn_contact_list import ConnectionInterfaceContactList
 from foo.conn_contacts import ConnectionInterfaceContacts
 from foo.channel_manager import FooChannelManager
@@ -94,5 +100,13 @@ class FooConnection(Connection,
 
         return ret
 
-    def GetContactListAttributes(self, interfaces, hold):
-        return {}
+    @method(CONNECTION_INTERFACE_CONTACT_LIST, in_signature='asb', out_signature='a{ua{sv}}', sender_keyword='sender')
+    def GetContactListAttributes(self, interfaces, hold, sender):
+        ret = Dictionary(signature='ua{sv}')
+        for contact in CONTACTS:
+            handle = self.ensure_handle(HANDLE_TYPE_CONTACT, contact)
+            ret[int(handle)] = Dictionary(signature='sv')
+            ret[int(handle)][CONNECTION + '/contact-id'] = contact
+            ret[int(handle)][CONNECTION_INTERFACE_CONTACT_LIST + '/subscribe'] = SUBSCRIPTION_STATE_YES
+            ret[int(handle)][CONNECTION_INTERFACE_CONTACT_LIST + '/publish'] = SUBSCRIPTION_STATE_YES
+        return ret
