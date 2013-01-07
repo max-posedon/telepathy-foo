@@ -1,6 +1,3 @@
-import dbus
-import dbus.service
-
 from telepathy._generated.Connection_Interface_Contacts import ConnectionInterfaceContacts as _ConnectionInterfaceContacts
 from telepathy.interfaces import CONNECTION, CONNECTION_INTERFACE_CONTACTS
 from telepathy.server.properties import DBusProperties

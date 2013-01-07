@@ -21,7 +21,6 @@ from telepathy.server import (
     Connection,
     ConnectionInterfaceRequests,
 )
-from telepathy.server.handle import Handle
 
 from foo import PROGRAM, PROTOCOL, CONTACTS
 from foo.conn_contact_list import ConnectionInterfaceContactList
@@ -55,6 +54,10 @@ class FooConnection(Connection,
         self.set_self_handle(self_handle)
 
         self.__disconnect_reason = CONNECTION_STATUS_REASON_NONE_SPECIFIED
+
+    def handle(self, handle_type, handle_id):
+        self.check_handle(handle_type, handle_id)
+        return self._handles[handle_type, handle_id]
 
     def Connect(self):
         if self._status == CONNECTION_STATUS_DISCONNECTED:

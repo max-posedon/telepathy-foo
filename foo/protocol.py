@@ -1,4 +1,9 @@
+from dbus.types import String, UInt32
+
+from telepathy.constants import HANDLE_TYPE_CONTACT
 from telepathy.interfaces import (
+    CHANNEL,
+    CHANNEL_TYPE_TEXT,
     CONNECTION_INTERFACE_CONTACT_LIST,
     CONNECTION_INTERFACE_CONTACTS,
     CONNECTION_INTERFACE_REQUESTS,
@@ -26,6 +31,16 @@ class FooProtocol(Protocol):
     }
 
     _requestable_channel_classes = [
+        (
+            {
+                CHANNEL + '.ChannelType': String(CHANNEL_TYPE_TEXT),
+                CHANNEL + '.TargetHandleType': UInt32(HANDLE_TYPE_CONTACT),
+            },
+            [
+                CHANNEL + '.TargetHandle',
+                CHANNEL + '.TargetID',
+            ]
+        ),
     ]
 
     _supported_interfaces = [
