@@ -20,10 +20,10 @@ from telepathy.interfaces import (
 from telepathy.server import (
     Connection,
     ConnectionInterfaceRequests,
+    ConnectionInterfaceContactList,
 )
 
 from foo import PROGRAM, PROTOCOL, CONTACTS
-from foo.conn_contact_list import ConnectionInterfaceContactList
 from foo.conn_contacts import ConnectionInterfaceContacts
 from foo.channel_manager import FooChannelManager
 
