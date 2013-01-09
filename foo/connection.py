@@ -73,31 +73,6 @@ class FooConnection(Connection,
         self.StatusChanged(CONNECTION_STATUS_DISCONNECTED, self.__disconnect_reason)
         self._manager.disconnected(self)
 
-    def GetContactAttributes(self, handles, interfaces, hold):
-        supported_interfaces = set()
-        for interface in interfaces:
-            if interface in self.attributes:
-                supported_interfaces.add(interface)
-
-        handle_type = HANDLE_TYPE_CONTACT
-        ret = Dictionary(signature='ua{sv}')
-        for handle in handles:
-            ret[handle] = Dictionary(signature='sv')
-
-        functions = {
-            CONNECTION: lambda x: zip(x, self.InspectHandles(handle_type, x)),
-        }
-
-        supported_interfaces.add(CONNECTION)
-
-        for interface in supported_interfaces:
-            interface_attribute = interface + '/' + self._contact_attribute_interfaces[interface]
-            results = functions[interface](handles)
-            for handle, value in results:
-                ret[int(handle)][interface_attribute] = value
-
-        return ret
-
     def GetContactListAttributes(self, interfaces, hold):
         ret = Dictionary(signature='ua{sv}')
         for contact in CONTACTS:
