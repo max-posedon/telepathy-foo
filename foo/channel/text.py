@@ -4,9 +4,7 @@ from uuid import uuid4
 import gobject
 from dbus.types import Array, Dictionary, String, UInt32, UInt64
 
-from telepathy.interfaces import CHANNEL_INTERFACE_MESSAGES
-from telepathy.server import ChannelTypeText
-from telepathy._generated.Channel_Interface_Messages import ChannelInterfaceMessages
+from telepathy.server import ChannelTypeText, ChannelInterfaceMessages
 
 
 __all__ = (
@@ -15,6 +13,8 @@ __all__ = (
 
 
 class FooTextChannel(ChannelTypeText, ChannelInterfaceMessages):
+    _supported_content_types = ['text/plain']
+
     def __init__(self, conn, manager, props, object_path=None):
         _, surpress_handler, handle = manager._get_type_requested_handle(props)
         self.handle = handle
@@ -22,13 +22,6 @@ class FooTextChannel(ChannelTypeText, ChannelInterfaceMessages):
 
         ChannelTypeText.__init__(self, conn, manager, props, object_path)
         ChannelInterfaceMessages.__init__(self)
-
-        self._implement_property_get(CHANNEL_INTERFACE_MESSAGES, {
-            'SupportedContentTypes': lambda: ["text/plain"] ,
-            'MessagePartSupportFlags': lambda: 0,
-            'DeliveryReportingSupport': lambda: 0,
-            'PendingMessages': lambda: Array([], signature='aa{sv}'),
-        })
 
     def SendMessage(self, message, flags):
         token = str(uuid4())
