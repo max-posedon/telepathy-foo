@@ -1,6 +1,5 @@
 import gobject
 from dbus.types import Dictionary
-from dbus.service import method
 import weakref
 
 from telepathy.constants import (
@@ -15,7 +14,6 @@ from telepathy.constants import (
 from telepathy.interfaces import (
     CONNECTION,
     CONNECTION_INTERFACE_CONTACT_LIST,
-    CONNECTION_INTERFACE_CONTACTS,
 )
 from telepathy.server import (
     Connection,
@@ -75,8 +73,7 @@ class FooConnection(Connection,
         self.StatusChanged(CONNECTION_STATUS_DISCONNECTED, self.__disconnect_reason)
         self._manager.disconnected(self)
 
-    @method(CONNECTION_INTERFACE_CONTACTS, in_signature='auasb', out_signature='a{ua{sv}}', sender_keyword='sender')
-    def GetContactAttributes(self, handles, interfaces, hold, sender):
+    def GetContactAttributes(self, handles, interfaces, hold):
         supported_interfaces = set()
         for interface in interfaces:
             if interface in self.attributes:
@@ -91,8 +88,6 @@ class FooConnection(Connection,
             CONNECTION: lambda x: zip(x, self.InspectHandles(handle_type, x)),
         }
 
-        if hold:
-            self.HoldHandles(handle_type, handles, sender)
         supported_interfaces.add(CONNECTION)
 
         for interface in supported_interfaces:
@@ -103,8 +98,7 @@ class FooConnection(Connection,
 
         return ret
 
-    @method(CONNECTION_INTERFACE_CONTACT_LIST, in_signature='asb', out_signature='a{ua{sv}}', sender_keyword='sender')
-    def GetContactListAttributes(self, interfaces, hold, sender):
+    def GetContactListAttributes(self, interfaces, hold):
         ret = Dictionary(signature='ua{sv}')
         for contact in CONTACTS:
             handle = self.ensure_handle(HANDLE_TYPE_CONTACT, contact)
