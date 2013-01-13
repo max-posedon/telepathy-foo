@@ -4,6 +4,7 @@ from uuid import uuid4
 import gobject
 from dbus.types import Array, Dictionary, String, UInt32, UInt64
 
+from telepathy.constants import CHANNEL_TEXT_MESSAGE_TYPE_NORMAL
 from telepathy.server import ChannelTypeText, ChannelInterfaceMessages
 
 
@@ -31,7 +32,7 @@ class FooTextChannel(ChannelTypeText, ChannelInterfaceMessages):
     def _send_message(self, message, flags, token):
         headers = Dictionary({
             String('message-sent'): UInt64(time()),
-            String('message-type'): message[0]['message-type'],
+            String('message-type'): UInt32(CHANNEL_TEXT_MESSAGE_TYPE_NORMAL),
         }, signature='sv')
         body = Dictionary({
             String('content-type'): String('text/plain'),
@@ -47,8 +48,8 @@ class FooTextChannel(ChannelTypeText, ChannelInterfaceMessages):
         header = Dictionary({
             'pending-message-id': UInt32(self.__message_received_id),
             'message-received': UInt64(time()),
-            'message-type': UInt32(0),
-            'sender-nickname': String("four"),
+            'message-type': UInt32(CHANNEL_TEXT_MESSAGE_TYPE_NORMAL),
+            'sender-nickname': String(self.handle.get_name()),
             }, signature='sv')
         body = Dictionary({
             String('content-type'): String('text/plain'),

@@ -1,5 +1,5 @@
 import gobject
-from dbus.types import Dictionary
+from dbus.types import Array, Dictionary, String
 import weakref
 
 from telepathy.constants import (
@@ -13,16 +13,17 @@ from telepathy.constants import (
 )
 from telepathy.interfaces import (
     CONNECTION,
+    CONNECTION_INTERFACE_CONTACT_GROUPS,
     CONNECTION_INTERFACE_CONTACT_LIST,
 )
 from telepathy.server import (
     Connection,
     ConnectionInterfaceRequests,
     ConnectionInterfaceContacts,
+    ConnectionInterfaceContactGroups,
     ConnectionInterfaceContactList,
 )
-
-from foo import PROGRAM, PROTOCOL, CONTACTS
+from foo import PROGRAM, PROTOCOL, CONTACTS, GROUP
 from foo.channel_manager import FooChannelManager
 
 
@@ -32,6 +33,7 @@ __all__ = (
 
 
 class FooConnection(Connection,
+    ConnectionInterfaceContactGroups,
     ConnectionInterfaceContactList,
     ConnectionInterfaceContacts,
     ConnectionInterfaceRequests,
@@ -44,6 +46,7 @@ class FooConnection(Connection,
         account = unicode(parameters['account'])
         self._channel_manager = FooChannelManager(self, protocol)
         Connection.__init__(self, PROTOCOL, account, PROGRAM, protocol)
+        ConnectionInterfaceContactGroups.__init__(self)
         ConnectionInterfaceContactList.__init__(self)
         ConnectionInterfaceContacts.__init__(self)
         ConnectionInterfaceRequests.__init__(self)
@@ -62,6 +65,8 @@ class FooConnection(Connection,
             gobject.timeout_add(50, self._connected)
 
     def _connected(self):
+        self._groups = [GROUP]
+
         self.StatusChanged(CONNECTION_STATUS_CONNECTED, CONNECTION_STATUS_REASON_REQUESTED)
         self.ContactListStateChanged(CONTACT_LIST_STATE_SUCCESS)
 
@@ -70,6 +75,8 @@ class FooConnection(Connection,
         gobject.timeout_add(50, self._disconnected)
 
     def _disconnected(self):
+        self._groups = []
+
         self.StatusChanged(CONNECTION_STATUS_DISCONNECTED, self.__disconnect_reason)
         self._manager.disconnected(self)
 
@@ -81,4 +88,5 @@ class FooConnection(Connection,
             ret[int(handle)][CONNECTION + '/contact-id'] = contact
             ret[int(handle)][CONNECTION_INTERFACE_CONTACT_LIST + '/subscribe'] = SUBSCRIPTION_STATE_YES
             ret[int(handle)][CONNECTION_INTERFACE_CONTACT_LIST + '/publish'] = SUBSCRIPTION_STATE_YES
+            ret[int(handle)][CONNECTION_INTERFACE_CONTACT_GROUPS + '/groups'] = Array([String(GROUP)], signature='s')
         return ret
