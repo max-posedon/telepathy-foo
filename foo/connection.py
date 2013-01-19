@@ -1,8 +1,10 @@
 import gobject
-from dbus.types import Array, Dictionary, String
+from dbus.types import Array, Dictionary, String, Struct
 import weakref
 
 from telepathy.constants import (
+    CONNECTION_PRESENCE_TYPE_AVAILABLE,
+    CONNECTION_PRESENCE_STATUS_AVAILABLE,
     CONNECTION_STATUS_CONNECTED,
     CONNECTION_STATUS_DISCONNECTED,
     CONNECTION_STATUS_REASON_REQUESTED,
@@ -15,13 +17,15 @@ from telepathy.interfaces import (
     CONNECTION,
     CONNECTION_INTERFACE_CONTACT_GROUPS,
     CONNECTION_INTERFACE_CONTACT_LIST,
+    CONNECTION_INTERFACE_SIMPLE_PRESENCE,
 )
 from telepathy.server import (
     Connection,
-    ConnectionInterfaceRequests,
     ConnectionInterfaceContacts,
     ConnectionInterfaceContactGroups,
     ConnectionInterfaceContactList,
+    ConnectionInterfaceRequests,
+    ConnectionInterfaceSimplePresence,
 )
 from foo import PROGRAM, PROTOCOL, CONTACTS, GROUP
 from foo.channel_manager import FooChannelManager
@@ -37,6 +41,7 @@ class FooConnection(Connection,
     ConnectionInterfaceContactList,
     ConnectionInterfaceContacts,
     ConnectionInterfaceRequests,
+    ConnectionInterfaceSimplePresence,
     ):
 
     def __init__(self, protocol, manager, parameters):
@@ -44,12 +49,14 @@ class FooConnection(Connection,
         self._manager = weakref.proxy(manager)
 
         account = unicode(parameters['account'])
+        self._statuses = protocol._statuses
         self._channel_manager = FooChannelManager(self, protocol)
         Connection.__init__(self, PROTOCOL, account, PROGRAM, protocol)
         ConnectionInterfaceContactGroups.__init__(self)
         ConnectionInterfaceContactList.__init__(self)
         ConnectionInterfaceContacts.__init__(self)
         ConnectionInterfaceRequests.__init__(self)
+        ConnectionInterfaceSimplePresence.__init__(self)
 
         self_handle = self.create_handle(HANDLE_TYPE_CONTACT, account.encode('utf-8'))
         self.set_self_handle(self_handle)
@@ -89,4 +96,18 @@ class FooConnection(Connection,
             ret[int(handle)][CONNECTION_INTERFACE_CONTACT_LIST + '/subscribe'] = SUBSCRIPTION_STATE_YES
             ret[int(handle)][CONNECTION_INTERFACE_CONTACT_LIST + '/publish'] = SUBSCRIPTION_STATE_YES
             ret[int(handle)][CONNECTION_INTERFACE_CONTACT_GROUPS + '/groups'] = Array([String(GROUP)], signature='s')
+            ret[int(handle)][CONNECTION_INTERFACE_SIMPLE_PRESENCE + '/presence'] = Struct(
+                (CONNECTION_PRESENCE_TYPE_AVAILABLE, CONNECTION_PRESENCE_STATUS_AVAILABLE, "avail"),
+                signature='uss',
+            )
         return ret
+
+    def GetPresences(self, contacts):
+        presences = Dictionary(signature='u(uss)')
+        for handle_id in contacts:
+            handle = self.handle(HANDLE_TYPE_CONTACT, handle_id)
+            presences[handle] = Struct(
+                (CONNECTION_PRESENCE_TYPE_AVAILABLE, CONNECTION_PRESENCE_STATUS_AVAILABLE, "avail"),
+                signature='uss',
+            )
+        return presences

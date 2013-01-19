@@ -1,6 +1,12 @@
 from dbus.types import String, UInt32
 
-from telepathy.constants import HANDLE_TYPE_CONTACT
+from telepathy.constants import (
+    CONNECTION_PRESENCE_STATUS_AVAILABLE,
+    CONNECTION_PRESENCE_STATUS_OFFLINE,
+    CONNECTION_PRESENCE_TYPE_AVAILABLE,
+    CONNECTION_PRESENCE_TYPE_OFFLINE,
+    HANDLE_TYPE_CONTACT,
+)
 from telepathy.interfaces import (
     CHANNEL,
     CHANNEL_TYPE_TEXT,
@@ -8,8 +14,9 @@ from telepathy.interfaces import (
     CONNECTION_INTERFACE_CONTACT_LIST,
     CONNECTION_INTERFACE_CONTACTS,
     CONNECTION_INTERFACE_REQUESTS,
+    CONNECTION_INTERFACE_SIMPLE_PRESENCE,
 )
-from telepathy.server import Protocol
+from telepathy.server import Protocol, ProtocolInterfacePresence
 
 from foo import PROTOCOL
 from foo.connection import FooConnection
@@ -20,7 +27,7 @@ __all__ = (
 )
 
 
-class FooProtocol(Protocol):
+class FooProtocol(Protocol, ProtocolInterfacePresence):
     
     _proto = PROTOCOL
     _english_name = PROTOCOL.capitalize()
@@ -49,10 +56,25 @@ class FooProtocol(Protocol):
         CONNECTION_INTERFACE_CONTACT_LIST,
         CONNECTION_INTERFACE_CONTACTS,
         CONNECTION_INTERFACE_REQUESTS,
+        CONNECTION_INTERFACE_SIMPLE_PRESENCE,
     ]
+
+    _statuses = {
+        CONNECTION_PRESENCE_STATUS_AVAILABLE: (
+            CONNECTION_PRESENCE_TYPE_AVAILABLE,
+            True,
+            True,
+        ),
+        CONNECTION_PRESENCE_STATUS_OFFLINE: (
+            CONNECTION_PRESENCE_TYPE_OFFLINE,
+            True,
+            False,
+        ),
+    }
 
     def __init__(self, connection_manager):
         Protocol.__init__(self, connection_manager, PROTOCOL)
+        ProtocolInterfacePresence.__init__(self)
 
     def create_connection(self, connection_manager, parameters):
         return FooConnection(self, connection_manager, parameters)
