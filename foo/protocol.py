@@ -10,6 +10,7 @@ from telepathy.constants import (
 from telepathy.interfaces import (
     CHANNEL,
     CHANNEL_TYPE_TEXT,
+    CONNECTION_INTERFACE_ALIASING,
     CONNECTION_INTERFACE_CONTACT_GROUPS,
     CONNECTION_INTERFACE_CONTACT_LIST,
     CONNECTION_INTERFACE_CONTACTS,
@@ -52,6 +53,7 @@ class FooProtocol(Protocol, ProtocolInterfacePresence):
     ]
 
     _supported_interfaces = [
+        CONNECTION_INTERFACE_ALIASING,
         CONNECTION_INTERFACE_CONTACT_GROUPS,
         CONNECTION_INTERFACE_CONTACT_LIST,
         CONNECTION_INTERFACE_CONTACTS,

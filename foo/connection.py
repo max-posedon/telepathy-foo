@@ -15,12 +15,14 @@ from telepathy.constants import (
 )
 from telepathy.interfaces import (
     CONNECTION,
+    CONNECTION_INTERFACE_ALIASING,
     CONNECTION_INTERFACE_CONTACT_GROUPS,
     CONNECTION_INTERFACE_CONTACT_LIST,
     CONNECTION_INTERFACE_SIMPLE_PRESENCE,
 )
 from telepathy.server import (
     Connection,
+    ConnectionInterfaceAliasing,
     ConnectionInterfaceContacts,
     ConnectionInterfaceContactGroups,
     ConnectionInterfaceContactList,
@@ -37,6 +39,7 @@ __all__ = (
 
 
 class FooConnection(Connection,
+    ConnectionInterfaceAliasing,
     ConnectionInterfaceContactGroups,
     ConnectionInterfaceContactList,
     ConnectionInterfaceContacts,
@@ -52,6 +55,7 @@ class FooConnection(Connection,
         self._statuses = protocol._statuses
         self._channel_manager = FooChannelManager(self, protocol)
         Connection.__init__(self, PROTOCOL, account, PROGRAM, protocol)
+        ConnectionInterfaceAliasing.__init__(self)
         ConnectionInterfaceContactGroups.__init__(self)
         ConnectionInterfaceContactList.__init__(self)
         ConnectionInterfaceContacts.__init__(self)
@@ -93,6 +97,7 @@ class FooConnection(Connection,
             handle = self.ensure_handle(HANDLE_TYPE_CONTACT, contact)
             ret[int(handle)] = Dictionary(signature='sv')
             ret[int(handle)][CONNECTION + '/contact-id'] = contact
+            ret[int(handle)][CONNECTION_INTERFACE_ALIASING + '/alias'] = contact
             ret[int(handle)][CONNECTION_INTERFACE_CONTACT_LIST + '/subscribe'] = SUBSCRIPTION_STATE_YES
             ret[int(handle)][CONNECTION_INTERFACE_CONTACT_LIST + '/publish'] = SUBSCRIPTION_STATE_YES
             ret[int(handle)][CONNECTION_INTERFACE_CONTACT_GROUPS + '/groups'] = Array([String(GROUP)], signature='s')
@@ -111,3 +116,10 @@ class FooConnection(Connection,
                 signature='uss',
             )
         return presences
+
+    def GetAliases(self, contacts):
+        aliases = Dictionary(signature='us')
+        for handle_id in contacts:
+            handle = self.handle(HANDLE_TYPE_CONTACT, handle_id)
+            aliases[handle_id] = String(handle.name)
+        return aliases
