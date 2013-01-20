@@ -48,6 +48,7 @@ class FooTextChannel(ChannelTypeText, ChannelInterfaceMessages):
         header = Dictionary({
             'pending-message-id': UInt32(self.__message_received_id),
             'message-received': UInt64(time()),
+            'message-sender': UInt32(self.handle),
             'message-type': UInt32(CHANNEL_TEXT_MESSAGE_TYPE_NORMAL),
             'sender-nickname': String(self.handle.get_name()),
             }, signature='sv')
