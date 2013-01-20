@@ -9,6 +9,7 @@ from telepathy.constants import (
     CONNECTION_STATUS_DISCONNECTED,
     CONNECTION_STATUS_REASON_REQUESTED,
     CONNECTION_STATUS_REASON_NONE_SPECIFIED,
+    CONTACT_INFO_FLAG_PUSH,
     CONTACT_LIST_STATE_SUCCESS,
     HANDLE_TYPE_CONTACT,
     SUBSCRIPTION_STATE_YES,
@@ -18,6 +19,7 @@ from telepathy.interfaces import (
     CONNECTION_INTERFACE_ALIASING,
     CONNECTION_INTERFACE_AVATARS,
     CONNECTION_INTERFACE_CONTACT_GROUPS,
+    CONNECTION_INTERFACE_CONTACT_INFO,
     CONNECTION_INTERFACE_CONTACT_LIST,
     CONNECTION_INTERFACE_SIMPLE_PRESENCE,
 )
@@ -27,6 +29,7 @@ from telepathy.server import (
     ConnectionInterfaceAvatars,
     ConnectionInterfaceContacts,
     ConnectionInterfaceContactGroups,
+    ConnectionInterfaceContactInfo,
     ConnectionInterfaceContactList,
     ConnectionInterfaceRequests,
     ConnectionInterfaceSimplePresence,
@@ -44,11 +47,18 @@ class FooConnection(Connection,
     ConnectionInterfaceAvatars,
     ConnectionInterfaceAliasing,
     ConnectionInterfaceContactGroups,
+    ConnectionInterfaceContactInfo,
     ConnectionInterfaceContactList,
     ConnectionInterfaceContacts,
     ConnectionInterfaceRequests,
     ConnectionInterfaceSimplePresence,
     ):
+
+    _contact_info_flags = CONTACT_INFO_FLAG_PUSH
+    _supported_fields = [
+        ('nickname', [], 0, 1),
+        ('email', [], 0, 1),
+    ]
 
     def __init__(self, protocol, manager, parameters):
         protocol.check_parameters(parameters)
@@ -62,6 +72,7 @@ class FooConnection(Connection,
         ConnectionInterfaceAliasing.__init__(self)
         ConnectionInterfaceAvatars.__init__(self)
         ConnectionInterfaceContactGroups.__init__(self)
+        ConnectionInterfaceContactInfo.__init__(self)
         ConnectionInterfaceContactList.__init__(self)
         ConnectionInterfaceContacts.__init__(self)
         ConnectionInterfaceRequests.__init__(self)
@@ -111,6 +122,12 @@ class FooConnection(Connection,
                 (CONNECTION_PRESENCE_TYPE_AVAILABLE, CONNECTION_PRESENCE_STATUS_AVAILABLE, "avail"),
                 signature='uss',
             )
+            ret[int(handle)][CONNECTION_INTERFACE_CONTACT_INFO + '/info'] = Array([
+                    Struct(('nickname', Array([], signature='s'), Array([contact], signature='s')), signature='sasas'),
+                    Struct(('email', Array([], signature='s'), Array([contact+'@example.com'], signature='s')), signature='sasas'),
+                ]
+            )
+
         return ret
 
     def GetPresences(self, contacts):
