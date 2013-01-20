@@ -1,5 +1,5 @@
 import gobject
-from dbus.types import Array, Dictionary, String, Struct
+from dbus.types import Array, Dictionary, String, Struct, UInt32
 import weakref
 
 from telepathy.constants import (
@@ -16,6 +16,7 @@ from telepathy.constants import (
 from telepathy.interfaces import (
     CONNECTION,
     CONNECTION_INTERFACE_ALIASING,
+    CONNECTION_INTERFACE_AVATARS,
     CONNECTION_INTERFACE_CONTACT_GROUPS,
     CONNECTION_INTERFACE_CONTACT_LIST,
     CONNECTION_INTERFACE_SIMPLE_PRESENCE,
@@ -23,13 +24,14 @@ from telepathy.interfaces import (
 from telepathy.server import (
     Connection,
     ConnectionInterfaceAliasing,
+    ConnectionInterfaceAvatars,
     ConnectionInterfaceContacts,
     ConnectionInterfaceContactGroups,
     ConnectionInterfaceContactList,
     ConnectionInterfaceRequests,
     ConnectionInterfaceSimplePresence,
 )
-from foo import PROGRAM, PROTOCOL, CONTACTS, GROUP
+from foo import PROGRAM, PROTOCOL, CONTACTS, GROUP, AVATAR, AVATAR_MIME
 from foo.channel_manager import FooChannelManager
 
 
@@ -39,6 +41,7 @@ __all__ = (
 
 
 class FooConnection(Connection,
+    ConnectionInterfaceAvatars,
     ConnectionInterfaceAliasing,
     ConnectionInterfaceContactGroups,
     ConnectionInterfaceContactList,
@@ -53,9 +56,11 @@ class FooConnection(Connection,
 
         account = unicode(parameters['account'])
         self._statuses = protocol._statuses
+        self._supported_avatar_mime_types = protocol._supported_avatar_mime_types
         self._channel_manager = FooChannelManager(self, protocol)
         Connection.__init__(self, PROTOCOL, account, PROGRAM, protocol)
         ConnectionInterfaceAliasing.__init__(self)
+        ConnectionInterfaceAvatars.__init__(self)
         ConnectionInterfaceContactGroups.__init__(self)
         ConnectionInterfaceContactList.__init__(self)
         ConnectionInterfaceContacts.__init__(self)
@@ -98,6 +103,7 @@ class FooConnection(Connection,
             ret[int(handle)] = Dictionary(signature='sv')
             ret[int(handle)][CONNECTION + '/contact-id'] = contact
             ret[int(handle)][CONNECTION_INTERFACE_ALIASING + '/alias'] = contact
+            ret[int(handle)][CONNECTION_INTERFACE_AVATARS + '/token'] = contact
             ret[int(handle)][CONNECTION_INTERFACE_CONTACT_LIST + '/subscribe'] = SUBSCRIPTION_STATE_YES
             ret[int(handle)][CONNECTION_INTERFACE_CONTACT_LIST + '/publish'] = SUBSCRIPTION_STATE_YES
             ret[int(handle)][CONNECTION_INTERFACE_CONTACT_GROUPS + '/groups'] = Array([String(GROUP)], signature='s')
@@ -123,3 +129,18 @@ class FooConnection(Connection,
             handle = self.handle(HANDLE_TYPE_CONTACT, handle_id)
             aliases[handle_id] = String(handle.name)
         return aliases
+
+    def GetKnownAvatarTokens(self, contacts):
+        tokens = Dictionary(signature='us')
+        for handle_id in contacts:
+            handle = self.handle(HANDLE_TYPE_CONTACT, handle_id)
+            tokens[handle_id] = String(handle.name)
+        return tokens
+
+    def RequestAvatars(self, contacts):
+        for handle_id in contacts:
+            gobject.timeout_add(0, self._avatar_retrieved, handle_id)
+
+    def _avatar_retrieved(self, handle_id):
+        handle = self.handle(HANDLE_TYPE_CONTACT, handle_id)
+        self.AvatarRetrieved(UInt32(handle_id), String(handle.name), AVATAR, AVATAR_MIME)  
