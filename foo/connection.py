@@ -18,6 +18,7 @@ from telepathy.interfaces import (
     CONNECTION,
     CONNECTION_INTERFACE_ALIASING,
     CONNECTION_INTERFACE_AVATARS,
+    CONNECTION_INTERFACE_BALANCE,
     CONNECTION_INTERFACE_CONTACT_GROUPS,
     CONNECTION_INTERFACE_CONTACT_INFO,
     CONNECTION_INTERFACE_CONTACT_LIST,
@@ -27,6 +28,7 @@ from telepathy.server import (
     Connection,
     ConnectionInterfaceAliasing,
     ConnectionInterfaceAvatars,
+    ConnectionInterfaceBalance,
     ConnectionInterfaceContacts,
     ConnectionInterfaceContactGroups,
     ConnectionInterfaceContactInfo,
@@ -46,6 +48,7 @@ __all__ = (
 class FooConnection(Connection,
     ConnectionInterfaceAvatars,
     ConnectionInterfaceAliasing,
+    ConnectionInterfaceBalance,
     ConnectionInterfaceContactGroups,
     ConnectionInterfaceContactInfo,
     ConnectionInterfaceContactList,
@@ -53,6 +56,9 @@ class FooConnection(Connection,
     ConnectionInterfaceRequests,
     ConnectionInterfaceSimplePresence,
     ):
+
+    _account_balance = (100, 2, 'USD')
+    _manage_credit_uri = 'http://google.com'
 
     _contact_info_flags = CONTACT_INFO_FLAG_PUSH
     _supported_fields = [
@@ -71,6 +77,7 @@ class FooConnection(Connection,
         Connection.__init__(self, PROTOCOL, account, PROGRAM, protocol)
         ConnectionInterfaceAliasing.__init__(self)
         ConnectionInterfaceAvatars.__init__(self)
+        ConnectionInterfaceBalance.__init__(self)
         ConnectionInterfaceContactGroups.__init__(self)
         ConnectionInterfaceContactInfo.__init__(self)
         ConnectionInterfaceContactList.__init__(self)
