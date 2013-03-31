@@ -59,6 +59,7 @@ class FooConnection(Connection,
 
     _account_balance = (100, 2, 'USD')
     _manage_credit_uri = 'http://google.com'
+    _download_at_connection = False
 
     _contact_info_flags = CONTACT_INFO_FLAG_PUSH
     _supported_fields = [
@@ -100,9 +101,22 @@ class FooConnection(Connection,
 
     def _connected(self):
         self._groups = [GROUP]
-
         self.StatusChanged(CONNECTION_STATUS_CONNECTED, CONNECTION_STATUS_REASON_REQUESTED)
         self.ContactListStateChanged(CONTACT_LIST_STATE_SUCCESS)
+        gobject.timeout_add(0, self._contacts_changed)
+
+    def _contacts_changed(self):
+        changes = Dictionary(signature='u(uus)')
+        identifiers = Dictionary(signature='us')
+        removals = Dictionary(signature='us')
+
+        for contact in CONTACTS:
+            handle = self.ensure_handle(HANDLE_TYPE_CONTACT, contact)
+            changes[handle] = Struct((True, True, ''), signature='uus')
+            identifiers[handle] = contact
+
+        self.ContactsChangedWithID(changes, identifiers, removals)
+        self.ContactsChanged(changes, Array([], signature='u'))
 
     def Disconnect(self):
         self.__disconnect_reason = CONNECTION_STATUS_REASON_REQUESTED
